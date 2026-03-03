@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# environment variables (keep secrets out of git)
+.env
+.env.local
+.env.*.local
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Claude Code workspace
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

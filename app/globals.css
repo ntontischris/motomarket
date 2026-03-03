@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #1a1a1a;
+  --surface-3: #222222;
+  --border: #2a2a2a;
+  --border-light: #333333;
+  --text: #e5e5e5;
+  --text-muted: #888888;
+  --orange: #f97316;
+  --orange-dim: rgba(249, 115, 22, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  height: 100%;
+  margin: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Prose / markdown inside chat */
+.prose-chat {
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 0.9375rem;
+}
+.prose-chat strong { color: #fff; font-weight: 600; }
+.prose-chat ul { padding-left: 1.25rem; margin: 0.5rem 0; }
+.prose-chat li { margin: 0.2rem 0; }
+.prose-chat p { margin: 0 0 0.5rem 0; }
+.prose-chat p:last-child { margin-bottom: 0; }
+.prose-chat h3 { color: var(--orange); font-size: 1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
+.prose-chat code { background: var(--surface-3); padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.85em; }
+
+/* Input focus glow */
+.input-glow:focus {
+  outline: none;
+  border-color: var(--orange) !important;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
+/* Recharts dark theme overrides */
+.recharts-default-tooltip {
+  background: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+}
+.recharts-cartesian-axis-tick-value {
+  fill: #888 !important;
+  font-size: 11px;
+}
+.recharts-legend-item-text {
+  color: #888 !important;
+  font-size: 11px;
+}
+.recharts-tooltip-wrapper {
+  outline: none;
+}
