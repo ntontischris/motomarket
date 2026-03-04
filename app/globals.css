@@ -3,16 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0a0a;
-  --surface: #111111;
-  --surface-2: #1a1a1a;
-  --surface-3: #222222;
-  --border: #2a2a2a;
-  --border-light: #333333;
-  --text: #e5e5e5;
-  --text-muted: #888888;
+  --bg: #0F1117;
+  --surface: #141720;
+  --surface-2: #1A1D27;
+  --surface-3: #22263A;
+  --border: #2A2D3A;
+  --border-light: #333649;
+  --text: #F1F5F9;
+  --text-muted: #94A3B8;
+  --text-dim: #475569;
+  --accent: #6366F1;
+  --accent-dim: rgba(99,102,241,0.08);
   --orange: #f97316;
-  --orange-dim: rgba(249, 115, 22, 0.15);
+  --orange-dim: rgba(249, 115, 22, 0.12);
 }
 
 * {
@@ -28,10 +31,10 @@ html, body {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: var(--surface); }
-::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
 
 /* Prose / markdown inside chat */
 .prose-chat {
@@ -50,24 +53,29 @@ html, body {
 /* Input focus glow */
 .input-glow:focus {
   outline: none;
-  border-color: var(--orange) !important;
-  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.2);
 }
 
 /* Recharts dark theme overrides */
 .recharts-default-tooltip {
-  background: #1a1a1a !important;
-  border: 1px solid #333 !important;
+  background: #1A1D27 !important;
+  border: 1px solid #2A2D3A !important;
   border-radius: 8px !important;
 }
 .recharts-cartesian-axis-tick-value {
-  fill: #888 !important;
+  fill: #94A3B8 !important;
   font-size: 11px;
 }
 .recharts-legend-item-text {
-  color: #888 !important;
+  color: #94A3B8 !important;
   font-size: 11px;
 }
 .recharts-tooltip-wrapper {
   outline: none;
+}
+
+/* Mobile safe area padding */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }

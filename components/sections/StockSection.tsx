@@ -19,10 +19,10 @@ export default function StockSection() {
   const displayAlerts = tab === "critical" ? criticalAlerts : warningAlerts;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-[#e5e5e5]">Διαχείριση Αποθέματος</h2>
-        <p className="text-sm text-[#666666]">Αξία αποθέματος και ειδοποιήσεις</p>
+        <h2 className="text-lg font-bold text-[#F1F5F9]">Διαχείριση Αποθέματος</h2>
+        <p className="text-sm text-[#475569]">Αξία αποθέματος και ειδοποιήσεις</p>
       </div>
 
       {/* KPI Cards */}
@@ -51,14 +51,14 @@ export default function StockSection() {
       </div>
 
       {/* Alert Tabs */}
-      <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] overflow-hidden">
-        <div className="flex border-b border-[#2a2a2a]">
+      <div className="rounded-xl border border-[#2A2D3A] bg-[#1A1D27] overflow-hidden">
+        <div className="flex border-b border-[#2A2D3A]">
           <button
             onClick={() => setTab("critical")}
             className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
               tab === "critical"
                 ? "text-red-400 border-b-2 border-red-500 bg-red-500/5"
-                : "text-[#555555] hover:text-[#888888]"
+                : "text-[#555555] hover:text-[#94A3B8]"
             }`}
           >
             Κρίσιμα
@@ -71,7 +71,7 @@ export default function StockSection() {
             className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
               tab === "warning"
                 ? "text-yellow-400 border-b-2 border-yellow-500 bg-yellow-500/5"
-                : "text-[#555555] hover:text-[#888888]"
+                : "text-[#555555] hover:text-[#94A3B8]"
             }`}
           >
             Προειδοποίηση
@@ -96,8 +96,8 @@ export default function StockSection() {
 
       {/* Stock by Category */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] p-4">
-          <h3 className="text-sm font-semibold text-[#888888] mb-4 uppercase tracking-wide">
+        <div className="rounded-xl border border-[#2A2D3A] bg-[#1A1D27] p-4">
+          <h3 className="text-sm font-semibold text-[#94A3B8] mb-4 uppercase tracking-wide">
             Αξία Αποθέματος ανά Κατηγορία
           </h3>
           <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function StockSection() {
                 <div key={cat.category}>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-[#aaaaaa]">{cat.category}</span>
-                    <span className="text-[#666666]">€{cat.retailValue.toLocaleString("el-GR", { minimumFractionDigits: 0 })} · {cat.units} τεμ</span>
+                    <span className="text-[#475569]">€{cat.retailValue.toLocaleString("el-GR", { minimumFractionDigits: 0 })} · {cat.units} τεμ</span>
                   </div>
                   <div className="h-1.5 bg-[#1e1e1e] rounded-full overflow-hidden">
                     <div
@@ -123,8 +123,8 @@ export default function StockSection() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] p-4">
-          <h3 className="text-sm font-semibold text-[#888888] mb-4 uppercase tracking-wide">
+        <div className="rounded-xl border border-[#2A2D3A] bg-[#1A1D27] p-4">
+          <h3 className="text-sm font-semibold text-[#94A3B8] mb-4 uppercase tracking-wide">
             Αξία Αποθέματος ανά Brand
           </h3>
           <div className="space-y-2">
@@ -136,7 +136,7 @@ export default function StockSection() {
                 <div key={brand.brand}>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-[#aaaaaa]">{brand.brand}</span>
-                    <span className="text-[#666666]">€{brand.retailValue.toLocaleString("el-GR", { minimumFractionDigits: 0 })} · {brand.units} τεμ</span>
+                    <span className="text-[#475569]">€{brand.retailValue.toLocaleString("el-GR", { minimumFractionDigits: 0 })} · {brand.units} τεμ</span>
                   </div>
                   <div className="h-1.5 bg-[#1e1e1e] rounded-full overflow-hidden">
                     <div

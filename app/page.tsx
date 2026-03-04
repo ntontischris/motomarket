@@ -8,6 +8,7 @@ import CatalogSection from "@/components/sections/CatalogSection";
 import StockSection from "@/components/sections/StockSection";
 import SalesSection from "@/components/sections/SalesSection";
 import AIAdvisorSection from "@/components/sections/AIAdvisorSection";
+import MarginsSection from "@/components/sections/MarginsSection";
 import { getStockAlerts } from "@/lib/bi-analytics";
 
 function getCriticalCount() {
@@ -23,7 +24,7 @@ export default function Home() {
   const criticalCount = getCriticalCount();
 
   return (
-    <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
+    <div className="flex flex-col h-[100dvh] bg-[#0F1117] overflow-hidden">
       <DashboardHeader activeSection={activeSection} />
 
       <div className="flex flex-1 min-h-0">
@@ -33,10 +34,11 @@ export default function Home() {
           criticalStockCount={criticalCount}
         />
 
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pb-16 md:pb-0">
           {activeSection === "overview" && <OverviewSection />}
           {activeSection === "sales" && <SalesSection />}
           {activeSection === "catalog" && <CatalogSection />}
+          {activeSection === "margins" && <MarginsSection />}
           {activeSection === "stock" && <StockSection />}
           {activeSection === "advisor" && (
             <div className="h-full flex flex-col">

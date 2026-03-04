@@ -660,3 +660,274 @@ export function getCustomerAnalytics(): CustomerAnalytics {
     topCustomers,
   };
 }
+
+// ─── Seasonality Insights ─────────────────────────────────────────────
+
+export interface SeasonalityData {
+  peakMonths: { month: string; revenuePct: number }[];
+  categorySeasonality: { category: string; variance: number; peakMonth: string }[];
+  yoyComparison: { month: string; current: number; prior: number }[];
+}
+
+export function getSeasonalityInsights(): SeasonalityData {
+  // Monthly revenue totals
+  const monthRevenue: Record<string, number> = {};
+  for (const sale of MOCK_SALES) {
+    const item = itemByCode.get(sale.productCode);
+    if (!item) continue;
+    const month = sale.date.substring(0, 7);
+    monthRevenue[month] = (monthRevenue[month] || 0) + sale.soldPrice * sale.quantity;
+  }
+
+  const totalRevenue = Object.values(monthRevenue).reduce((s, v) => s + v, 0);
+
+  // Peak months (top 5 by revenue %)
+  const peakMonths = Object.entries(monthRevenue)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([month, rev]) => ({
+      month,
+      revenuePct: Math.round(rev / totalRevenue * 1000) / 10,
+    }));
+
+  // Category seasonality: for each category, find peak month and variance
+  const catMonthRev: Record<string, Record<string, number>> = {};
+  for (const sale of MOCK_SALES) {
+    const item = itemByCode.get(sale.productCode);
+    if (!item) continue;
+    const cat = categoryLabel(item.CCategory);
+    const month = sale.date.substring(2, 7); // MM-YY short
+    if (!catMonthRev[cat]) catMonthRev[cat] = {};
+    catMonthRev[cat][month] = (catMonthRev[cat][month] || 0) + sale.soldPrice * sale.quantity;
+  }
+
+  const categorySeasonality = Object.entries(catMonthRev).map(([category, months]) => {
+    const values = Object.values(months);
+    const avg = values.reduce((s, v) => s + v, 0) / values.length;
+    const variance = Math.round(
+      Math.sqrt(values.reduce((s, v) => s + Math.pow(v - avg, 2), 0) / values.length)
+    );
+    const peakMonth = Object.entries(months).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "";
+    return { category, variance, peakMonth };
+  }).sort((a, b) => b.variance - a.variance).slice(0, 8);
+
+  // YoY comparison: compare months that exist in both 2025 and 2024
+  const yoyComparison: { month: string; current: number; prior: number }[] = [];
+  for (const m of ["03","04","05","06","07","08","09","10","11","12"]) {
+    const current = monthRevenue[`2025-${m}`] ?? 0;
+    const prior = monthRevenue[`2024-${m}`] ?? 0;
+    if (current > 0 || prior > 0) {
+      yoyComparison.push({
+        month: m,
+        current: Math.round(current),
+        prior: Math.round(prior),
+      });
+    }
+  }
+
+  return { peakMonths, categorySeasonality, yoyComparison };
+}
+
+// ─── Demand Forecast ──────────────────────────────────────────────────
+
+export interface ForecastPoint {
+  label: string;
+  projected: number;
+  confidence: "high" | "medium" | "low";
+  isProjection: boolean;
+}
+
+export function getForecastData(category?: string): ForecastPoint[] {
+  // Get monthly revenue for all available months, optionally filtered by category
+  const monthRevenue: Record<string, number> = {};
+
+  for (const sale of MOCK_SALES) {
+    const item = itemByCode.get(sale.productCode);
+    if (!item) continue;
+    if (category && categoryLabel(item.CCategory) !== category) continue;
+    const month = sale.date.substring(0, 7);
+    monthRevenue[month] = (monthRevenue[month] || 0) + sale.soldPrice * sale.quantity;
+  }
+
+  const sorted = Object.entries(monthRevenue).sort((a, b) => a[0].localeCompare(b[0]));
+
+  // Linear regression on last 12 months
+  const recent = sorted.slice(-12);
+  const n = recent.length;
+  if (n < 3) return [];
+
+  const xs = recent.map((_, i) => i);
+  const ys = recent.map(([, v]) => v);
+  const sumX = xs.reduce((s, x) => s + x, 0);
+  const sumY = ys.reduce((s, y) => s + y, 0);
+  const sumXY = xs.reduce((s, x, i) => s + x * ys[i], 0);
+  const sumXX = xs.reduce((s, x) => s + x * x, 0);
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  // Historical points (last 6 months)
+  const historical: ForecastPoint[] = sorted.slice(-6).map(([label, rev]) => ({
+    label,
+    projected: Math.round(rev),
+    confidence: "high",
+    isProjection: false,
+  }));
+
+  // Forecast next 3 months
+  const lastIdx = n - 1;
+  const lastMonth = new Date(sorted[sorted.length - 1][0] + "-01");
+  const forecast: ForecastPoint[] = [1, 2, 3].map(offset => {
+    const d = new Date(lastMonth);
+    d.setMonth(d.getMonth() + offset);
+    const label = d.toISOString().substring(0, 7);
+    const projected = Math.max(0, Math.round(intercept + slope * (lastIdx + offset)));
+    return {
+      label,
+      projected,
+      confidence: offset === 1 ? "high" : offset === 2 ? "medium" : "low",
+      isProjection: true,
+    };
+  });
+
+  return [...historical, ...forecast];
+}
+
+// ─── RFM Analysis ─────────────────────────────────────────────────────
+
+export interface RFMSegment {
+  segment: "champions" | "loyal" | "at_risk" | "lost" | "new";
+  customerCount: number;
+  totalRevenue: number;
+  avgOrderValue: number;
+  customers: { code: string; name: string; rfmScore: number }[];
+}
+
+export function getRFMAnalysis(): RFMSegment[] {
+  const customerMap = new Map(MOCK_CUSTOMERS.map(c => [c.code, c]));
+  const now = new Date("2026-03-01");
+
+  // Calculate R, F, M per customer
+  const customerStats: Record<string, { lastDate: string; orderCount: number; revenue: number }> = {};
+
+  for (const sale of MOCK_SALES) {
+    if (!customerStats[sale.customerCode]) {
+      customerStats[sale.customerCode] = { lastDate: sale.date, orderCount: 0, revenue: 0 };
+    }
+    const cs = customerStats[sale.customerCode];
+    if (sale.date > cs.lastDate) cs.lastDate = sale.date;
+    cs.orderCount += 1;
+    const item = itemByCode.get(sale.productCode);
+    cs.revenue += item ? sale.soldPrice * sale.quantity : 0;
+  }
+
+  // Score each customer 1-5 on R, F, M
+  const entries = Object.entries(customerStats);
+  if (entries.length === 0) return [];
+
+  const allRevenues = entries.map(([, s]) => s.revenue).sort((a, b) => a - b);
+  const allFreqs = entries.map(([, s]) => s.orderCount).sort((a, b) => a - b);
+
+  function percentileScore(value: number, sorted: number[]): number {
+    const pct = sorted.filter(v => v <= value).length / sorted.length;
+    return Math.ceil(pct * 5);
+  }
+
+  const scored = entries.map(([code, stats]) => {
+    const daysSinceLast = Math.floor((now.getTime() - new Date(stats.lastDate).getTime()) / 86400000);
+    const r = daysSinceLast < 30 ? 5 : daysSinceLast < 90 ? 4 : daysSinceLast < 180 ? 3 : daysSinceLast < 365 ? 2 : 1;
+    const f = percentileScore(stats.orderCount, allFreqs);
+    const m = percentileScore(stats.revenue, allRevenues);
+    const rfmScore = r * 100 + f * 10 + m;
+    const customer = customerMap.get(code);
+    return { code, name: customer?.name ?? code, rfmScore, revenue: stats.revenue, orderCount: stats.orderCount, r, f, m };
+  });
+
+  // Assign segments
+  function assignSegment(s: typeof scored[0]): RFMSegment["segment"] {
+    if (s.r >= 4 && s.f >= 4 && s.m >= 4) return "champions";
+    if (s.r >= 3 && s.f >= 3) return "loyal";
+    if (s.r <= 2 && s.f >= 3) return "at_risk";
+    if (s.r === 1) return "lost";
+    return "new";
+  }
+
+  const segmentMap: Record<RFMSegment["segment"], typeof scored> = {
+    champions: [], loyal: [], at_risk: [], lost: [], new: [],
+  };
+
+  for (const s of scored) {
+    segmentMap[assignSegment(s)].push(s);
+  }
+
+  return (["champions", "loyal", "at_risk", "lost", "new"] as const).map(segment => {
+    const customers = segmentMap[segment];
+    const totalRevenue = customers.reduce((s, c) => s + c.revenue, 0);
+    const totalOrders = customers.reduce((s, c) => s + c.orderCount, 0);
+    return {
+      segment,
+      customerCount: customers.length,
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
+      avgOrderValue: totalOrders > 0 ? Math.round(totalRevenue / totalOrders * 100) / 100 : 0,
+      customers: customers
+        .sort((a, b) => b.rfmScore - a.rfmScore)
+        .slice(0, 5)
+        .map(c => ({ code: c.code, name: c.name, rfmScore: c.rfmScore })),
+    };
+  });
+}
+
+// ─── KPI Deltas (period-over-period) ─────────────────────────────────
+
+export interface KPIWithDeltas extends KPIData {
+  revenue30dChange: number;  // % change vs prior 30 days
+  revenueYTDChange: number;  // % YoY change
+  ordersChange: number;      // % change in order count
+}
+
+export function getKPIsWithDeltas(): KPIWithDeltas {
+  const base = getKPIs();
+
+  // Last 30 days (Feb 2026) vs prior 30 days (Jan 2026)
+  const feb2026Sales = MOCK_SALES.filter(s => s.date >= "2026-02-01" && s.date < "2026-03-01");
+  const jan2026Sales = MOCK_SALES.filter(s => s.date >= "2026-01-01" && s.date < "2026-02-01");
+
+  const revFeb = feb2026Sales.reduce((s, sale) => {
+    const item = itemByCode.get(sale.productCode);
+    return s + (item ? sale.soldPrice * sale.quantity : 0);
+  }, 0);
+  const revJan = jan2026Sales.reduce((s, sale) => {
+    const item = itemByCode.get(sale.productCode);
+    return s + (item ? sale.soldPrice * sale.quantity : 0);
+  }, 0);
+
+  const revenue30dChange = revJan > 0
+    ? Math.round((revFeb - revJan) / revJan * 1000) / 10
+    : 0;
+
+  // YoY: Mar-Aug 2025 vs Mar-Aug 2024
+  const period2025 = MOCK_SALES.filter(s => s.date >= "2025-03-01" && s.date < "2025-09-01");
+  const period2024 = MOCK_SALES.filter(s => s.date >= "2024-03-01" && s.date < "2024-09-01");
+  const rev2025 = period2025.reduce((s, sale) => {
+    const item = itemByCode.get(sale.productCode);
+    return s + (item ? sale.soldPrice * sale.quantity : 0);
+  }, 0);
+  const rev2024 = period2024.reduce((s, sale) => {
+    const item = itemByCode.get(sale.productCode);
+    return s + (item ? sale.soldPrice * sale.quantity : 0);
+  }, 0);
+  const revenueYTDChange = rev2024 > 0
+    ? Math.round((rev2025 - rev2024) / rev2024 * 1000) / 10
+    : 0;
+
+  // Orders: Feb vs Jan
+  const ordersChange = jan2026Sales.length > 0
+    ? Math.round((feb2026Sales.length - jan2026Sales.length) / jan2026Sales.length * 1000) / 10
+    : 0;
+
+  return {
+    ...base,
+    revenue30dChange,
+    revenueYTDChange,
+    ordersChange,
+  };
+}

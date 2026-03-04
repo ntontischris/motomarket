@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   ZAxis,
 } from "recharts";
-import { CHART_COLORS } from "@/lib/bi-analytics";
+import { CHART_COLORS, getTopProducts } from "@/lib/bi-analytics";
 
 interface MarginScatterPoint {
   code: string;
@@ -22,7 +22,7 @@ interface MarginScatterPoint {
 }
 
 interface MarginScatterProps {
-  data: MarginScatterPoint[];
+  data?: MarginScatterPoint[];
   height?: number;
 }
 
@@ -41,7 +41,17 @@ function CustomTooltip({ active, payload }: any) {
   );
 }
 
-export default function MarginScatter({ data, height = 280 }: MarginScatterProps) {
+export default function MarginScatter({ data: dataProp, height = 280 }: MarginScatterProps) {
+  // Self-source data from bi-analytics when no data prop is provided
+  const data: MarginScatterPoint[] = dataProp ?? getTopProducts("revenue", 50).map(p => ({
+    code: p.code,
+    name: p.name,
+    brand: p.brand,
+    price: p.revenue / (p.units || 1), // avg sold price
+    marginPct: p.marginPct,
+    revenue: p.revenue,
+  }));
+
   // Color dots by margin level
   const getColor = (m: number) => {
     if (m >= 30) return CHART_COLORS.success;

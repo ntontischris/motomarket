@@ -76,7 +76,7 @@ export default function CatalogSection() {
       label: "Προϊόν",
       render: (row) => (
         <div>
-          <div className="text-[#e5e5e5] font-medium text-sm">{row.name}</div>
+          <div className="text-[#F1F5F9] font-medium text-sm">{row.name}</div>
           <div className="text-[#555555] text-xs font-mono">{row.code}</div>
         </div>
       ),
@@ -88,14 +88,14 @@ export default function CatalogSection() {
       label: "Τιμή Πώλησης",
       sortable: true,
       align: "right",
-      render: (row) => <span className="text-[#e5e5e5]">€{row.retailPrice.toFixed(2)}</span>,
+      render: (row) => <span className="text-[#F1F5F9]">€{row.retailPrice.toFixed(2)}</span>,
     },
     {
       key: "costPrice",
       label: "Κόστος",
       sortable: true,
       align: "right",
-      render: (row) => <span className="text-[#666666]">€{row.costPrice.toFixed(2)}</span>,
+      render: (row) => <span className="text-[#475569]">€{row.costPrice.toFixed(2)}</span>,
     },
     {
       key: "marginPct",
@@ -171,10 +171,10 @@ export default function CatalogSection() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <div>
-        <h2 className="text-lg font-bold text-[#e5e5e5]">Κατάλογος Προϊόντων</h2>
-        <p className="text-sm text-[#666666]">{MOCK_ITEMS.filter(i => i.Inactive === 0).length} ενεργά προϊόντα</p>
+        <h2 className="text-lg font-bold text-[#F1F5F9]">Κατάλογος Προϊόντων</h2>
+        <p className="text-sm text-[#475569]">{MOCK_ITEMS.filter(i => i.Inactive === 0).length} ενεργά προϊόντα</p>
       </div>
 
       {/* Filters */}
@@ -184,12 +184,12 @@ export default function CatalogSection() {
           placeholder="Αναζήτηση προϊόντος..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="flex-1 min-w-48 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] placeholder-[#555555] focus:outline-none focus:border-orange-500/50"
+          className="flex-1 min-w-48 bg-[#1A1D27] border border-[#2A2D3A] rounded-lg px-3 py-2 text-sm text-[#F1F5F9] placeholder-[#555555] focus:outline-none focus:border-orange-500/50"
         />
         <select
           value={brandFilter}
           onChange={e => setBrandFilter(e.target.value)}
-          className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#e5e5e5] focus:outline-none focus:border-orange-500/50"
+          className="bg-[#1A1D27] border border-[#2A2D3A] rounded-lg px-3 py-2 text-sm text-[#F1F5F9] focus:outline-none focus:border-orange-500/50"
         >
           <option value="all">Όλα τα Brands</option>
           {brands.map(b => <option key={b} value={b}>{b}</option>)}
@@ -204,8 +204,8 @@ export default function CatalogSection() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] p-4">
-          <h3 className="text-sm font-semibold text-[#888888] mb-4 uppercase tracking-wide">
+        <div className="rounded-xl border border-[#2A2D3A] bg-[#1A1D27] p-4">
+          <h3 className="text-sm font-semibold text-[#94A3B8] mb-4 uppercase tracking-wide">
             Τιμή vs Margin — Scatter
           </h3>
           <MarginScatter data={scatterData} height={280} />
@@ -216,8 +216,8 @@ export default function CatalogSection() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-[#2a2a2a] bg-[#111111] p-4">
-          <h3 className="text-sm font-semibold text-[#888888] mb-4 uppercase tracking-wide">
+        <div className="rounded-xl border border-[#2A2D3A] bg-[#1A1D27] p-4">
+          <h3 className="text-sm font-semibold text-[#94A3B8] mb-4 uppercase tracking-wide">
             Απόδοση ανά Brand
           </h3>
           <DataTable

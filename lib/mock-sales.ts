@@ -1,7 +1,7 @@
 // ============================================================
 // MOCK SALES DATA — Motomarket Business Intelligence
-// Period: Sep 2025 – Feb 2026 (6 months)
-// ~360 sale records, 18 customers
+// Period: Mar 2024 – Feb 2026 (24 months)
+// ~1800 sale records, 18 customers
 // ============================================================
 
 export interface SaleRecord {
@@ -111,6 +111,24 @@ function pickWeightedProduct(): { code: string; basePrice: number } {
 
 // Monthly targets (sale count per month)
 const MONTHLY_TARGETS: Record<string, number> = {
+  "2024-03": 78,
+  "2024-04": 95,
+  "2024-05": 110,
+  "2024-06": 88,
+  "2024-07": 72,
+  "2024-08": 68,
+  "2024-09": 85,
+  "2024-10": 67,
+  "2024-11": 42,
+  "2024-12": 58,
+  "2025-01": 31,
+  "2025-02": 49,
+  "2025-03": 82,
+  "2025-04": 98,
+  "2025-05": 115,
+  "2025-06": 90,
+  "2025-07": 75,
+  "2025-08": 70,
   "2025-09": 92,
   "2025-10": 70,
   "2025-11": 48,
@@ -121,6 +139,24 @@ const MONTHLY_TARGETS: Record<string, number> = {
 
 // Days in each month
 const MONTH_DAYS: Record<string, number> = {
+  "2024-03": 31,
+  "2024-04": 30,
+  "2024-05": 31,
+  "2024-06": 30,
+  "2024-07": 31,
+  "2024-08": 31,
+  "2024-09": 30,
+  "2024-10": 31,
+  "2024-11": 30,
+  "2024-12": 31,
+  "2025-01": 31,
+  "2025-02": 28,
+  "2025-03": 31,
+  "2025-04": 30,
+  "2025-05": 31,
+  "2025-06": 30,
+  "2025-07": 31,
+  "2025-08": 31,
   "2025-09": 30,
   "2025-10": 31,
   "2025-11": 30,
@@ -179,6 +215,24 @@ function generateMonthSales(yearMonth: string): SaleRecord[] {
 }
 
 export const MOCK_SALES: SaleRecord[] = [
+  ...generateMonthSales("2024-03"),
+  ...generateMonthSales("2024-04"),
+  ...generateMonthSales("2024-05"),
+  ...generateMonthSales("2024-06"),
+  ...generateMonthSales("2024-07"),
+  ...generateMonthSales("2024-08"),
+  ...generateMonthSales("2024-09"),
+  ...generateMonthSales("2024-10"),
+  ...generateMonthSales("2024-11"),
+  ...generateMonthSales("2024-12"),
+  ...generateMonthSales("2025-01"),
+  ...generateMonthSales("2025-02"),
+  ...generateMonthSales("2025-03"),
+  ...generateMonthSales("2025-04"),
+  ...generateMonthSales("2025-05"),
+  ...generateMonthSales("2025-06"),
+  ...generateMonthSales("2025-07"),
+  ...generateMonthSales("2025-08"),
   ...generateMonthSales("2025-09"),
   ...generateMonthSales("2025-10"),
   ...generateMonthSales("2025-11"),

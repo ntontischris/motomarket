@@ -15,10 +15,10 @@ interface Message {
 const STARTER_QUESTIONS = [
   "Ποια brands έχουν τα καλύτερα margins;",
   "Ποια προϊόντα κινδυνεύουν να εξαντληθούν πριν τη σεζόν;",
-  "Τι στρατηγική για pre-season (Μάρτιος 2026);",
+  "Ανάλυση πελατών — ποιους να επαναπροσεγγίσω;",
   "Δείξε τα top 10 προϊόντα σε έσοδα",
-  "Πού έχω τα χαμηλότερα margins και γιατί;",
-  "Τι να παραγγείλω άμεσα για το απόθεμα;",
+  "Τι εποχικότητα έχουν οι κατηγορίες μας;",
+  "Πρόβλεψη εσόδων Μαρτίου – Μαΐου 2026",
 ];
 
 export default function AIAdvisorSection() {
@@ -130,6 +130,11 @@ export default function AIAdvisorSection() {
     get_category_performance: "Κατηγορίες",
     get_price_analysis: "Τιμολόγηση",
     search_catalog_products: "Αναζήτηση καταλόγου",
+    get_customer_analytics: "Ανάλυση πελατών",
+    get_inventory_snapshot: "Snapshot αποθέματος",
+    get_seasonality_insights: "Εποχικότητα",
+    get_rfm_analysis: "RFM πελατών",
+    get_demand_forecast: "Πρόβλεψη ζήτησης",
   };
 
   return (
@@ -159,10 +164,28 @@ export default function AIAdvisorSection() {
               <div className="bg-[#1a1a1a] rounded-xl rounded-tl-sm px-4 py-3 max-w-lg">
                 <p className="text-sm text-[#e5e5e5] leading-relaxed">
                   Γεια σου! Είμαι ο AI σύμβουλός σου για το <strong>Motomarket</strong>.
-                  Έχω πρόσβαση στα δεδομένα πωλήσεων, αποθεμάτων και margins (Σεπ 2025 – Φεβ 2026).
+                  Έχω πρόσβαση στα δεδομένα πωλήσεων, αποθεμάτων και margins — 24 μήνες (Μαρ 2024 – Φεβ 2026).
                   Πες μου τι θέλεις να αναλύσουμε.
                 </p>
               </div>
+            </div>
+
+            {/* Season Report CTA */}
+            <div className="mb-4">
+              <button
+                onClick={() => sendMessage(`Δημιούργησε πλήρη στρατηγική αναφορά για τη σεζόν Μαρτίου–Μαΐου 2026: (1) Ποια προϊόντα/brands να παραγγείλω άμεσα και γιατί (2) Pricing strategy βάσει margin analysis (3) Ποιους πελάτες να επαναπροσεγγίσω (RFM) (4) Top 3 ευκαιρίες και top 3 κινδύνοι. Χρησιμοποίησε όλα τα διαθέσιμα tools.`)}
+                className="w-full px-5 py-4 rounded-xl bg-gradient-to-r from-indigo-600/20 to-orange-500/10 border border-indigo-500/30 hover:border-indigo-500/60 hover:from-indigo-600/30 transition-all text-left group"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-semibold text-indigo-300 group-hover:text-indigo-200">
+                    Αναφορά Σεζόν Μαρτίου–Μαΐου 2026
+                  </span>
+                  <span className="text-xs text-indigo-400 opacity-70">AI Report</span>
+                </div>
+                <p className="text-xs text-[#94A3B8]">
+                  Πλήρης στρατηγική: παραγγελίες, τιμολόγηση, επαναπροσέγγιση πελατών, ευκαιρίες & κινδύνοι
+                </p>
+              </button>
             </div>
 
             {/* Starter questions */}
@@ -252,7 +275,7 @@ export default function AIAdvisorSection() {
           </button>
         </form>
         <p className="text-[10px] text-[#333333] mt-2 px-1">
-          AI Advisor · Ανάλυση Σεπ 2025 – Φεβ 2026 · Δεδομένα demo
+          AI Advisor · Ανάλυση Μαρ 2024 – Φεβ 2026 · 24 μήνες δεδομένα demo
         </p>
       </div>
     </div>

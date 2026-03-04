@@ -17,7 +17,17 @@ const IS_MOCK = process.env.ERP_MODE !== "live";
 
 export async function searchProducts(params: ProductSearchParams): Promise<SearchResult> {
   if (IS_MOCK) return searchMock(params);
-  return searchLive(params); // TODO: implement when credentials available
+  // Live: delegate to searchLive with compatible params
+  const result = await searchLive({
+    query: params.query,
+    brand: params.brand,
+    category: params.category,
+  });
+  return {
+    items: result.items.slice(0, params.limit ?? 6),
+    total: result.total,
+    query: params.query || "",
+  };
 }
 
 function searchMock(params: ProductSearchParams): SearchResult {
@@ -77,10 +87,59 @@ function searchMock(params: ProductSearchParams): SearchResult {
   };
 }
 
-async function searchLive(_params: ProductSearchParams): Promise<SearchResult> {
-  // TODO: implement when ERP credentials available
-  // GET /api/rpc/PublicQuery/ESWBCat/CS_AppItems?Code=*&CCategory={category}
-  throw new Error("Live ERP mode not yet configured. Set ERP_MODE=mock or provide credentials.");
+// ─── Live Implementations (require ERP_MODE=live + credentials) ───────
+
+export async function searchLive(params: {
+  brand?: string;
+  category?: string;
+  query?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ items: ERPItem[]; total: number }> {
+  const { eshopPost, ROUTE_ID } = await import("./entersoft-client");
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 100;
+
+  const body = {
+    Route: ROUTE_ID,
+    Page: page,
+    PageSize: limit,
+    ...(params.brand ? { Brand: params.brand } : {}),
+    ...(params.category ? { CCategory: params.category } : {}),
+    ...(params.query ? { Search: params.query } : {}),
+  };
+
+  type LiveResponse = { items?: ERPItem[]; Items?: ERPItem[]; TotalCount?: number; total?: number };
+  const data = await eshopPost<LiveResponse>(
+    `/api/eshopconnector/Products/${ROUTE_ID}`,
+    body,
+  );
+
+  const items: ERPItem[] = (data.items ?? data.Items ?? []);
+  const total = data.TotalCount ?? data.total ?? items.length;
+
+  return { items, total };
+}
+
+export async function getProductLive(code: string): Promise<ERPItem | null> {
+  const result = await searchLive({ query: code, limit: 1 });
+  return result.items.find(i => i.Code === code) ?? null;
+}
+
+export async function getStockLive(code: string): Promise<Record<string, number>> {
+  const { eshopPost, ROUTE_ID } = await import("./entersoft-client");
+  type StockResponse = { items?: Array<{ Code: string; Warehouse?: string; Qty?: number }> };
+  const data = await eshopPost<StockResponse>(
+    `/api/eshopconnector/ProductsStock/${ROUTE_ID}`,
+    { Route: ROUTE_ID, Code: code },
+  );
+
+  const result: Record<string, number> = {};
+  for (const row of (data.items ?? [])) {
+    const warehouse = row.Warehouse ?? "default";
+    result[warehouse] = (result[warehouse] ?? 0) + (row.Qty ?? 0);
+  }
+  return result;
 }
 
 // ─── GET SINGLE PRODUCT ─────────────────────────────────────
@@ -89,8 +148,7 @@ export async function getProduct(code: string): Promise<ERPItem | null> {
   if (IS_MOCK) {
     return MOCK_ITEMS.find(i => i.Code === code) ?? null;
   }
-  // Live: GET /api/rpc/PublicQuery/ESWBCat/CS_AppItems?Code={code}
-  throw new Error("Live mode not configured");
+  return getProductLive(code);
 }
 
 // ─── STOCK ──────────────────────────────────────────────────
