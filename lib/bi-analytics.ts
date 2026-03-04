@@ -53,7 +53,7 @@ export interface TopProductData {
   marginPct: number;
 }
 
-export interface BrandPerformance {
+export interface BrandPerformance extends Record<string, unknown> {
   brand: string;
   revenue: number;
   units: number;

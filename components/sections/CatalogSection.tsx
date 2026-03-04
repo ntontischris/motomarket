@@ -6,7 +6,7 @@ import { getBrandPerformance } from "@/lib/bi-analytics";
 import DataTable, { type Column } from "@/components/ui/DataTable";
 import MarginScatter, { type MarginScatterPoint } from "@/components/charts/MarginScatter";
 
-interface CatalogRow {
+interface CatalogRow extends Record<string, unknown> {
   code: string;
   name: string;
   brand: string;
@@ -198,8 +198,8 @@ export default function CatalogSection() {
 
       {/* Product table */}
       <DataTable
-        columns={columns as Column<Record<string, unknown>>[]}
-        data={catalogRows as unknown as Record<string, unknown>[]}
+        columns={columns}
+        data={catalogRows}
       />
 
       {/* Charts */}
@@ -221,8 +221,8 @@ export default function CatalogSection() {
             Απόδοση ανά Brand
           </h3>
           <DataTable
-            columns={brandPerfCols as Column<Record<string, unknown>>[]}
-            data={brandPerf as unknown as Record<string, unknown>[]}
+            columns={brandPerfCols}
+            data={brandPerf}
             maxRows={10}
           />
         </div>
